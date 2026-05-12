@@ -29,7 +29,7 @@ claude        = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
 # ── Model — use the latest Haiku (fastest + cheapest, ~$0.30 per full run) ───
 # Upgrade to "claude-sonnet-4-6" anytime for deeper analysis
-MODEL = "claude-3-5-haiku-20241022"
+MODEL = "claude-3-haiku-20240307"
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 TRACKER_FILE = "Tracker.xlsx"
