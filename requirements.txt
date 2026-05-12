@@ -1,0 +1,5 @@
+firecrawl-py
+anthropic
+pandas
+openpyxl
+jinja2
