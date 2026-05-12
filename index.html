@@ -31,10 +31,16 @@ thead th.sorted-desc::after{content:" ▼"}
 tbody tr:nth-child(even){background:#fafbfd}
 tbody tr:hover{background:#eef2ff}
 td{padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:top}
-.news-cell{max-width:320px;font-size:13px;line-height:1.5}
+.news-cell{max-width:340px;font-size:13px;line-height:1.5}
 .badge{background:#e8eaf6;color:#3949ab;border-radius:12px;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap}
 .muted{color:#bbb}
 .center{text-align:center;padding:20px}
+.summary-box{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:28px;padding:20px 28px}
+.summary-box h2{font-size:16px;color:#1a1a2e;margin-bottom:12px}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.summary-section h3{font-size:13px;font-weight:700;color:#555;margin-bottom:6px}
+.summary-section ul{list-style:none;font-size:13px;color:#444;line-height:1.8}
+.summary-section ul li::before{content:"• ";color:#888}
 tr.row-event       td:first-child{border-left:4px solid #4CAF50}
 tr.row-bonus       td:first-child{border-left:4px solid #FF9800}
 tr.row-discontinue td:first-child{border-left:4px solid #F44336}
@@ -45,7 +51,7 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
 <body>
 <header>
   <h1>OffGamers Weekly Product Events Tracker</h1>
-  <p>Run date: 2026-05-12 &nbsp;|&nbsp; Window: 2026-05-02 → 2026-05-22 &nbsp;|&nbsp; Powered by Firecrawl + Claude 3.5 Sonnet</p>
+  <p>Run date: 2026-05-12 &nbsp;|&nbsp; Window: 2026-05-02 → 2026-05-22 &nbsp;|&nbsp; Model: claude-haiku-4-5-20251001</p>
 </header>
 <div class="container">
 
@@ -53,10 +59,34 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
     <div class="card"><div class="val">53</div><div class="lbl">Products Tracked</div></div>
     <div class="card"><div class="val">0</div><div class="lbl">Events Found</div></div>
     <div class="card"><div class="val">0</div><div class="lbl">Indirect News Items</div></div>
-    <div class="card"><div class="val">51</div><div class="lbl">No Events This Week</div></div>
-    <div class="card"><div class="val">2</div><div class="lbl">Unable to Access</div></div>
+    <div class="card"><div class="val">2</div><div class="lbl">No Events This Week</div></div>
+    <div class="card"><div class="val">51</div><div class="lbl">Unable to Access</div></div>
   </div>
 
+  <!-- Summary box -->
+  <div class="summary-box">
+    <h2>Weekly Summary</h2>
+    <div class="summary-grid">
+      <div class="summary-section">
+        <h3>🆕 New Launches</h3>
+        <ul><li style="color:#bbb">None this week</li></ul>
+      </div>
+      <div class="summary-section">
+        <h3>🎁 Bonuses / Discounts</h3>
+        <ul><li style="color:#bbb">None this week</li></ul>
+      </div>
+      <div class="summary-section">
+        <h3>⚠️ Discontinuations / Expiries</h3>
+        <ul><li style="color:#bbb">None this week</li></ul>
+      </div>
+      <div class="summary-section">
+        <h3>📰 Top Indirect News</h3>
+        <ul><li style="color:#bbb">None this week</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Events Table -->
   <div class="section">
     <div class="section-header">Product Events</div>
     <div class="legend">
@@ -80,7 +110,7 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
         <option value="row-no-event">No Event</option>
       </select>
     </div>
-    <table id="productTable">
+    <table>
       <thead><tr>
         <th onclick="sortTable('productTbody',0)">Product Name</th>
         <th onclick="sortTable('productTbody',1)">Category</th>
@@ -94,145 +124,145 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
       </tr></thead>
       <tbody id="productTbody">
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Global">
           <td>Nexon Game Card</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - In-game" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - In-game" data-region="Global">
           <td>MapleStory NX (PlayPark)</td>
           <td><span class="badge">Gaming - In-game</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Global">
           <td>GoCash Game Card</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Global">
           <td>MyCard Points</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - In-game" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - In-game" data-region="Global">
           <td>4Games</td>
           <td><span class="badge">Gaming - In-game</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Global">
           <td>Steam Wallet Codes</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - In-game" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - In-game" data-region="Global">
           <td>PUBG UC</td>
           <td><span class="badge">Gaming - In-game</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Retail - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Retail - Gift Card" data-region="Global">
           <td>Amazon Gift Card</td>
           <td><span class="badge">Retail - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Global">
           <td>DaddySkins Gift Card</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Global">
           <td>NCSoft NCoins</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Global">
           <td>Nintendo eShop Card</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Global">
           <td>Xbox Live Gift Card</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
@@ -250,49 +280,49 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - In-game" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - In-game" data-region="Global">
           <td>LifeAfter (Mobile)</td>
           <td><span class="badge">Gaming - In-game</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Payment - Gift Card" data-region="Japan">
+        <tr class="row-unable" data-category="Payment - Gift Card" data-region="Japan">
           <td>BitCash Gift Card</td>
           <td><span class="badge">Payment - Gift Card</span></td>
           <td>Japan</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Malaysia">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Malaysia">
           <td>HOTLINK</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Malaysia</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Korea">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Korea">
           <td>Afreeca TV Gift Card</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Korea</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
@@ -310,109 +340,109 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - In-game" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - In-game" data-region="Global">
           <td>Bleach Online</td>
           <td><span class="badge">Gaming - In-game</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - In-game" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - In-game" data-region="Global">
           <td>Free Fire Diamond Pins</td>
           <td><span class="badge">Gaming - In-game</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - In-game" data-region="Philippines / Global">
+        <tr class="row-unable" data-category="Gaming - In-game" data-region="Philippines / Global">
           <td>CrossFire eCoin</td>
           <td><span class="badge">Gaming - In-game</span></td>
           <td>Philippines / Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Retail - Gift Card" data-region="United States">
+        <tr class="row-unable" data-category="Retail - Gift Card" data-region="United States">
           <td>Best Buy Gift Card</td>
           <td><span class="badge">Retail - Gift Card</span></td>
           <td>United States</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - In-game" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - In-game" data-region="Global">
           <td>PUBG Mobile Top-Up</td>
           <td><span class="badge">Gaming - In-game</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Music - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Music - Gift Card" data-region="Global">
           <td>Spotify Gift Card</td>
           <td><span class="badge">Music - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - In-game" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - In-game" data-region="Global">
           <td>Eudemons Online Point Card</td>
           <td><span class="badge">Gaming - In-game</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - In-game" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - In-game" data-region="Global">
           <td>Jawaker Token (Global)</td>
           <td><span class="badge">Gaming - In-game</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - In-game" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - In-game" data-region="Global">
           <td>Mobile Legends: Bang Bang (Mobile)</td>
           <td><span class="badge">Gaming - In-game</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
@@ -424,223 +454,223 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Parse error: Expected JSON object</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Vietnam">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Vietnam">
           <td>Scoin</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Vietnam</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="United States">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="United States">
           <td>GameStop Gift Card</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>United States</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Vietnam">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Vietnam">
           <td>Zing Code</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Vietnam</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Retail - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Retail - Gift Card" data-region="Global">
           <td>DoorDash Gift Card</td>
           <td><span class="badge">Retail - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Global">
           <td>Google Play Gift Card</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Taiwan">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Taiwan">
           <td>GASH POINT</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Taiwan</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Hong Kong">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Hong Kong">
           <td>GASH POINT</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Hong Kong</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Software - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Software - Gift Card" data-region="Global">
           <td>Bigo Live</td>
           <td><span class="badge">Software - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Vietnam">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Vietnam">
           <td>VTC Vcoin</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Vietnam</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Retail - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Retail - Gift Card" data-region="Global">
           <td>Uber Gift Card</td>
           <td><span class="badge">Retail - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - In-game" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - In-game" data-region="Global">
           <td>Stormshot Direct Top-Up</td>
           <td><span class="badge">Gaming - In-game</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - In-game" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - In-game" data-region="Global">
           <td>Garena Shell</td>
           <td><span class="badge">Gaming - In-game</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Software - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Software - Gift Card" data-region="Global">
           <td>Netflix Gift Card</td>
           <td><span class="badge">Software - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Payment - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Payment - Gift Card" data-region="Global">
           <td>WebMoney Gift Card</td>
           <td><span class="badge">Payment - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Global">
           <td>Battlenet Gift Card</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Payment - Gift Card" data-region="Japan">
+        <tr class="row-unable" data-category="Payment - Gift Card" data-region="Japan">
           <td>DMM.com Gift Card (JP)</td>
           <td><span class="badge">Payment - Gift Card</span></td>
           <td>Japan</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Payment - Gift Card" data-region="Indonesia">
+        <tr class="row-unable" data-category="Payment - Gift Card" data-region="Indonesia">
           <td>Megaxus MI-CASH</td>
           <td><span class="badge">Payment - Gift Card</span></td>
           <td>Indonesia</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Software - Gift Card" data-region="Global">
+        <tr class="row-unable" data-category="Software - Gift Card" data-region="Global">
           <td>ExitLag</td>
           <td><span class="badge">Software - Gift Card</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
@@ -652,79 +682,79 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Parse error: Expected JSON object</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Payment - Gift Card" data-region="Korea">
+        <tr class="row-unable" data-category="Payment - Gift Card" data-region="Korea">
           <td>Booknlife Prepaid Card</td>
           <td><span class="badge">Payment - Gift Card</span></td>
           <td>Korea</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Retail - Gift Card" data-region="India">
+        <tr class="row-unable" data-category="Retail - Gift Card" data-region="India">
           <td>FlipKart Gift Card</td>
           <td><span class="badge">Retail - Gift Card</span></td>
           <td>India</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Retail - Gift Card" data-region="UAE">
+        <tr class="row-unable" data-category="Retail - Gift Card" data-region="UAE">
           <td>Noon Gift Card</td>
           <td><span class="badge">Retail - Gift Card</span></td>
           <td>UAE</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - Gift Card" data-region="Korea">
+        <tr class="row-unable" data-category="Gaming - Gift Card" data-region="Korea">
           <td>Nexon Cash Card</td>
           <td><span class="badge">Gaming - Gift Card</span></td>
           <td>Korea</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Retail - Gift Card" data-region="United States">
+        <tr class="row-unable" data-category="Retail - Gift Card" data-region="United States">
           <td>eBay Gift Card</td>
           <td><span class="badge">Retail - Gift Card</span></td>
           <td>United States</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
         </tr>
         
-        <tr class="row-no-event" data-category="Gaming - In-game" data-region="Global">
+        <tr class="row-unable" data-category="Gaming - In-game" data-region="Global">
           <td>Football Master 2 (Mobile)</td>
           <td><span class="badge">Gaming - In-game</span></td>
           <td>Global</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
-          <td class="news-cell">Parse error: Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'messag</td>
+          <td class="news-cell">Unable to access</td>
           <td><span class="muted">—</span></td>
           <td><span class="muted">—</span></td>
           <td>2026-05-12</td>
@@ -734,9 +764,10 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
     </table>
   </div>
 
+  <!-- Indirect Brand News Table -->
   <div class="section">
     <div class="section-header">Indirect Brand News (News Monitor sites)</div>
-    <table id="newsTable">
+    <table>
       <thead><tr>
         <th onclick="sortTable('newsTbody',0)">Product Matched</th>
         <th onclick="sortTable('newsTbody',1)">Source</th>
@@ -749,18 +780,6 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
       <tbody id="newsTbody">
         
         
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
         
           <tr><td colspan="7" class="muted center">No indirect brand news found this week.</td></tr>
         
@@ -771,46 +790,43 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
 </div>
 <script>
 (function(){
-  const rows = document.querySelectorAll('#productTbody tr');
-  const cats = new Set(), regs = new Set();
-  rows.forEach(r => { cats.add(r.dataset.category); regs.add(r.dataset.region); });
-  const catSel = document.getElementById('catFilter');
-  const regSel = document.getElementById('regionFilter');
-  [...cats].filter(Boolean).sort().forEach(c => { const o=document.createElement('option'); o.value=c; o.textContent=c; catSel.appendChild(o); });
-  [...regs].filter(Boolean).sort().forEach(r => { const o=document.createElement('option'); o.value=r; o.textContent=r; regSel.appendChild(o); });
+  const rows=document.querySelectorAll('#productTbody tr');
+  const cats=new Set(),regs=new Set();
+  rows.forEach(r=>{cats.add(r.dataset.category);regs.add(r.dataset.region);});
+  const catSel=document.getElementById('catFilter');
+  const regSel=document.getElementById('regionFilter');
+  [...cats].filter(Boolean).sort().forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;catSel.appendChild(o);});
+  [...regs].filter(Boolean).sort().forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=r;regSel.appendChild(o);});
 })();
-function filterProducts() {
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  const cat = document.getElementById('catFilter').value;
-  const reg = document.getElementById('regionFilter').value;
-  const status = document.getElementById('statusFilter').value;
-  document.querySelectorAll('#productTbody tr').forEach(row => {
-    const name = row.cells[0].textContent.toLowerCase();
-    const rowCls = [...row.classList].find(c => c.startsWith('row-')) || '';
-    const show = (!search || name.includes(search))
-              && (!cat    || row.dataset.category === cat)
-              && (!reg    || row.dataset.region   === reg)
-              && (!status || rowCls === status);
-    row.style.display = show ? '' : 'none';
+function filterProducts(){
+  const search=document.getElementById('searchInput').value.toLowerCase();
+  const cat=document.getElementById('catFilter').value;
+  const reg=document.getElementById('regionFilter').value;
+  const status=document.getElementById('statusFilter').value;
+  document.querySelectorAll('#productTbody tr').forEach(row=>{
+    const name=row.cells[0].textContent.toLowerCase();
+    const rowCls=[...row.classList].find(c=>c.startsWith('row-'))||'';
+    const show=(!search||name.includes(search))&&(!cat||row.dataset.category===cat)&&(!reg||row.dataset.region===reg)&&(!status||rowCls===status);
+    row.style.display=show?'':'none';
   });
 }
-const sortDir = {};
-function sortTable(tbodyId, col) {
-  const key = tbodyId + col;
-  const asc = !sortDir[key];
-  sortDir[key] = asc;
-  const tbody = document.getElementById(tbodyId);
-  const rows = [...tbody.querySelectorAll('tr')];
-  rows.sort((a, b) => {
-    const ta = (a.cells[col]?.textContent || '').trim();
-    const tb = (b.cells[col]?.textContent || '').trim();
-    return asc ? ta.localeCompare(tb) : tb.localeCompare(ta);
+const sortDir={};
+function sortTable(tbodyId,col){
+  const key=tbodyId+col;
+  const asc=!sortDir[key];
+  sortDir[key]=asc;
+  const tbody=document.getElementById(tbodyId);
+  const rows=[...tbody.querySelectorAll('tr')];
+  rows.sort((a,b)=>{
+    const ta=(a.cells[col]?.textContent||'').trim();
+    const tb=(b.cells[col]?.textContent||'').trim();
+    return asc?ta.localeCompare(tb):tb.localeCompare(ta);
   });
-  rows.forEach(r => tbody.appendChild(r));
-  const tableEl = tbody.closest('table');
-  tableEl.querySelectorAll('th').forEach((th, i) => {
-    th.classList.remove('sorted-asc', 'sorted-desc');
-    if (i === col) th.classList.add(asc ? 'sorted-asc' : 'sorted-desc');
+  rows.forEach(r=>tbody.appendChild(r));
+  const tableEl=tbody.closest('table');
+  tableEl.querySelectorAll('th').forEach((th,i)=>{
+    th.classList.remove('sorted-asc','sorted-desc');
+    if(i===col)th.classList.add(asc?'sorted-asc':'sorted-desc');
   });
 }
 </script>
