@@ -30,7 +30,7 @@ claude        = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 # ── Constants ────────────────────────────────────────────────────────────────
 TRACKER_FILE = "Tracker.xlsx"
 OUTPUT_FILE  = "index.html"
-MODEL        = "claude-3-5-sonnet-20241022"
+MODEL        = "claude-3-5-haiku-20241022"
 SCRAPE_DELAY = 2.0      # seconds between scrapes (respect Firecrawl rate limits)
 MAX_CONTENT  = 6000     # chars sent to Claude per URL
 MAX_COMBINED = 10000    # max combined chars for multi-URL rows
