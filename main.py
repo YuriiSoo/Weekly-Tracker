@@ -2,8 +2,8 @@
 OffGamers Weekly Product Events Tracker — Cloud Factory edition
 - Reads Tracker.xlsx from the repo root
 - Scrapes each URL with Firecrawl
-- Analyses content with Claude 3.5 Sonnet, following SKILL.md (±10-day window)
-- Renders index.html using a Jinja2 template
+- Analyses content with Claude (following PROMPT-CHAT.md / SKILL.md rules)
+- Renders index.html (sortable dashboard) + summary.md
 """
 
 import os
@@ -17,7 +17,7 @@ import anthropic
 from firecrawl import FirecrawlApp
 from jinja2 import Template
 
-# ── API keys come from environment / GitHub Secrets ──────────────────────────
+# ── API keys from environment / GitHub Secrets ───────────────────────────────
 FIRECRAWL_API_KEY = os.environ.get("FIRECRAWL_API_KEY")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 
@@ -27,12 +27,16 @@ if not FIRECRAWL_API_KEY or not ANTHROPIC_API_KEY:
 firecrawl_app = FirecrawlApp(api_key=FIRECRAWL_API_KEY)
 claude        = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
-# ── Constants ────────────────────────────────────────────────────────────────
+# ── Model — use the latest Haiku (fastest + cheapest, ~$0.30 per full run) ───
+# Upgrade to "claude-sonnet-4-6" anytime for deeper analysis
+MODEL = "claude-haiku-4-5-20251001"
+
+# ── Constants ─────────────────────────────────────────────────────────────────
 TRACKER_FILE = "Tracker.xlsx"
-OUTPUT_FILE  = "index.html"
-MODEL        = "claude-3-5-haiku-20241022"
-SCRAPE_DELAY = 2.0      # seconds between scrapes (respect Firecrawl rate limits)
-MAX_CONTENT  = 6000     # chars sent to Claude per URL
+OUTPUT_HTML  = "index.html"
+OUTPUT_MD    = "summary.md"
+SCRAPE_DELAY = 2.0      # seconds between Firecrawl calls
+MAX_CONTENT  = 6000     # chars per URL sent to Claude
 MAX_COMBINED = 10000    # max combined chars for multi-URL rows
 
 today        = datetime.date.today()
@@ -40,10 +44,10 @@ window_start = today - datetime.timedelta(days=10)
 window_end   = today + datetime.timedelta(days=10)
 
 
-# ── URL helpers ──────────────────────────────────────────────────────────────
+# ── URL helpers ───────────────────────────────────────────────────────────────
 
 def extract_clean_url(raw_value):
-    """Return the first valid URL from a cell that may contain descriptive text."""
+    """Return the first valid URL from a cell (handles plain URLs and mixed text)."""
     if pd.isna(raw_value):
         return None
     val = str(raw_value).strip()
@@ -56,7 +60,7 @@ def extract_clean_url(raw_value):
 
 
 def get_urls_for_row(row):
-    """Collect up to 3 usable URLs per row. Falls back to URLs inside Custom Instruction."""
+    """Collect up to 3 usable URLs. Falls back to URLs inside Custom Instruction."""
     urls = []
     for col in ["Official URL", "URL 2", "URL 3"]:
         url = extract_clean_url(row.get(col))
@@ -74,10 +78,10 @@ def get_urls_for_row(row):
     return urls
 
 
-# ── Scraping & Claude helpers ────────────────────────────────────────────────
+# ── Scraping helper ───────────────────────────────────────────────────────────
 
 def scrape_url(url):
-    """Scrape a URL with Firecrawl and return markdown text (or UNABLE_TO_ACCESS string)."""
+    """Scrape a URL with Firecrawl, return markdown text or UNABLE_TO_ACCESS string."""
     try:
         result = firecrawl_app.scrape_url(url, params={"formats": ["markdown"]})
         if isinstance(result, dict):
@@ -86,11 +90,13 @@ def scrape_url(url):
             text = getattr(result, "markdown", "") or ""
         return text.strip()
     except Exception as exc:
-        return f"UNABLE_TO_ACCESS: {str(exc)[:150]}"
+        return f"UNABLE_TO_ACCESS: {str(exc)[:200]}"
 
+
+# ── Claude helper ─────────────────────────────────────────────────────────────
 
 def ask_claude(prompt):
-    """Send a prompt to Claude 3.5 Sonnet and return the text response."""
+    """Call Claude and return the text response."""
     response = claude.messages.create(
         model=MODEL,
         max_tokens=1024,
@@ -100,7 +106,7 @@ def ask_claude(prompt):
 
 
 def parse_json_from_claude(raw):
-    """Strip markdown fences if present, then json.loads."""
+    """Strip markdown fences if present, then parse JSON."""
     if "```" in raw:
         raw = raw.split("```")[1]
         if raw.lower().startswith("json"):
@@ -108,14 +114,17 @@ def parse_json_from_claude(raw):
     return json.loads(raw.strip())
 
 
-# ── Pass 1: News Monitor rows ────────────────────────────────────────────────
+# ── PASS 1 — News Monitor rows ────────────────────────────────────────────────
 
 def run_news_monitor_pass(df):
+    """
+    Scan each News Monitor site for headlines within the ±10-day window
+    that mention any product name in the sheet.
+    """
     news_rows     = df[df["Category"] == "News Monitor"]
     product_rows  = df[df["Category"] != "News Monitor"]
     product_names = product_rows["Product Name"].dropna().tolist()
-
-    results = []
+    results       = []
 
     for _, row in news_rows.iterrows():
         site_name = str(row.get("Product Name", "")).strip()
@@ -131,62 +140,62 @@ def run_news_monitor_pass(df):
         time.sleep(SCRAPE_DELAY)
 
         if content.startswith("UNABLE_TO_ACCESS"):
-            results.append({"source_name": site_name, "region": region,
-                            "scan_count": 0, "error": content, "matches": []})
+            results.append({
+                "source_name": site_name, "region": region,
+                "scan_count": 0, "error": content, "matches": [],
+            })
             continue
 
         prompt = f"""You are scanning a news website for the OffGamers weekly product tracker.
 
 Today: {today}
-Date window: {window_start} to {window_end} (±10 days)
+Date window: {window_start} to {window_end} (±10 days back AND forward)
 News site: {site_name}  |  Region: {region}
 
-PRODUCT LIST to match (case-insensitive, common variants allowed —
-"Steam" matches "Steam Wallet Codes", "Free Fire" matches "Free Fire Diamond Pins", etc.):
+PRODUCT LIST — match case-insensitively, allow common short forms:
+("Steam" matches "Steam Wallet Codes", "Free Fire" matches "Free Fire Diamond Pins",
+"Google Play" matches "Google Play Gift Card", etc.)
 {json.dumps(product_names, indent=2)}
 
 NEWS CONTENT (first {MAX_CONTENT} chars):
 {content[:MAX_CONTENT]}
 
-Instructions:
-1. Find every article/headline published within the date window that mentions any product above.
-2. indirect_brand_news must be ≤25 words and end with the source name, e.g. "SoyaCincau: ...".
-3. Return ONLY valid JSON — no markdown fences, no commentary.
+For each article/headline published within the date window that mentions any product above,
+return one entry in the matches array.
+- indirect_brand_news: ≤25 words, end with source name e.g. "SoyaCincau: Google Play gift cards expire Feb 2026 in MY"
+- announced_on: publication date YYYY-MM-DD or blank
+- duration: "YYYY-MM-DD to YYYY-MM-DD" or blank
 
-{{
-  "matches": [
-    {{
-      "matched_product":    "exact product name from the list",
-      "event_region":       "region the news applies to",
-      "event_name":         "3-5 word label",
-      "indirect_brand_news":"≤25 word summary + source name",
-      "announced_on":       "YYYY-MM-DD or blank",
-      "duration":           "YYYY-MM-DD to YYYY-MM-DD or blank"
-    }}
-  ]
-}}
+Return ONLY valid JSON — no markdown fences, no commentary:
+{{"matches": [{{"matched_product": "exact name from list", "event_region": "region", "event_name": "3-5 word label", "indirect_brand_news": "≤25 word summary + source", "announced_on": "YYYY-MM-DD or blank", "duration": "YYYY-MM-DD to YYYY-MM-DD or blank"}}]}}
 
-If no matches, return: {{"matches": []}}"""
+If no matches: {{"matches": []}}"""
 
         try:
             data    = parse_json_from_claude(ask_claude(prompt))
             matches = data.get("matches", []) if isinstance(data, dict) else []
         except Exception as exc:
-            print(f"    ⚠ JSON parse error for {site_name}: {exc}")
+            print(f"    ⚠ Parse error for {site_name}: {exc}")
             matches = []
 
-        results.append({"source_name": site_name, "region": region,
-                        "scan_count": len(matches), "matches": matches})
-        print(f"    → {len(matches)} match(es) found")
+        results.append({
+            "source_name": site_name, "region": region,
+            "scan_count": len(matches), "matches": matches,
+        })
+        print(f"    → {len(matches)} match(es)")
 
     return results
 
 
-# ── Pass 2: Product rows ─────────────────────────────────────────────────────
+# ── PASS 2 — Product rows ─────────────────────────────────────────────────────
 
 def run_product_pass(df):
+    """
+    For each product row, scrape its URL(s) and find events within ±10 days.
+    If Custom Instruction is filled, follow it exactly.
+    """
     product_rows = df[df["Category"] != "News Monitor"]
-    results = []
+    results      = []
 
     for _, row in product_rows.iterrows():
         product_name       = str(row.get("Product Name",       "")).strip()
@@ -204,7 +213,7 @@ def run_product_pass(df):
         }
 
         if not urls:
-            print(f"  [Product] {product_name} — no URL, skipping")
+            print(f"  [Product] {product_name} — no URL")
             base.update({"direct_brand_news": "No URL provided", "unable_to_access": True})
             results.append(base)
             continue
@@ -218,41 +227,44 @@ def run_product_pass(df):
             time.sleep(SCRAPE_DELAY)
         combined = "\n\n---\n\n".join(scraped_parts)[:MAX_COMBINED]
 
+        # Build task section — follow custom instruction exactly if present
         if custom_instruction and custom_instruction != "nan":
-            task_section = f"CUSTOM INSTRUCTION (follow exactly):\n{custom_instruction}"
+            task_section = f"""CUSTOM INSTRUCTION — follow exactly, preserve any tag formats (e.g. "[All Games: ...]"):
+{custom_instruction}"""
         else:
-            task_section = (
-                "Generic logic — look for items ACTIVE OR ANNOUNCED within the date window:\n"
-                "  • New product launches\n"
-                "  • Bonus events (bonus credit, double rewards)\n"
-                "  • Discounts / flash sales\n"
-                "  • Discontinuations / region exits / expiry deadlines\n\n"
-                "CONSOLIDATION RULE: If multiple sub-events fall under one umbrella campaign, "
-                "keep them in ONE row with a summary in direct_brand_news. Only create "
-                "separate findings for truly independent events."
-            )
+            task_section = """GENERIC LOGIC — look for items ACTIVE OR ANNOUNCED within the date window:
+- New product launches
+- Bonus events (bonus credit, double rewards)
+- Discounts / flash sales
+- Discontinuations / region exits / expiry deadlines
+
+CONSOLIDATION RULE: If multiple sub-events fall under one umbrella campaign
+(e.g. PUBG May 2026 monthly calendar, MLBB ALLSTAR multi-skin event),
+keep them in ONE row with a summary in direct_brand_news.
+Only add separate findings for truly independent events."""
 
         prompt = f"""You are analysing product pages for the OffGamers weekly tracker.
 
 Today: {today}
-Date window: {window_start} to {window_end} (±10 days — look back AND forward)
+Date window: {window_start} to {window_end} (±10 days — look BOTH back AND forward)
 
-Product: {product_name}  |  Category: {category}  |  Region: {region}
+Product: {product_name}
+Category: {category}
+Region: {region}
 
 {task_section}
+
+UNIVERSAL RULES:
+- If a page needs JavaScript / login and content is insufficient: set unable_to_access to true and write "Unable to access" in direct_brand_news. Do NOT invent findings.
+- Respect Region — tag event_region accurately.
+- Empty event columns are a valid, useful answer.
+- Duration format: "YYYY-MM-DD to YYYY-MM-DD". Single day = same date twice. Unknown end = "YYYY-MM-DD to ".
 
 SCRAPED CONTENT:
 {combined}
 
 Return ONLY valid JSON — no markdown fences, no commentary:
-{{
-  "event_region":      "region the event applies to, or blank",
-  "event_name":        "3-5 word event label, or blank if nothing found",
-  "direct_brand_news": "concise summary (or 'Unable to access' if page failed)",
-  "announced_on":      "YYYY-MM-DD or blank",
-  "duration":          "YYYY-MM-DD to YYYY-MM-DD or blank",
-  "unable_to_access":  false
-}}"""
+{{"event_region": "region or blank", "event_name": "3-5 word label or blank", "direct_brand_news": "summary or Unable to access", "announced_on": "YYYY-MM-DD or blank", "duration": "YYYY-MM-DD to YYYY-MM-DD or blank", "unable_to_access": false}}"""
 
         try:
             data = parse_json_from_claude(ask_claude(prompt))
@@ -260,9 +272,11 @@ Return ONLY valid JSON — no markdown fences, no commentary:
                 raise ValueError("Expected JSON object")
         except Exception as exc:
             print(f"    ⚠ Parse error for {product_name}: {exc}")
-            data = {"event_region": "", "event_name": "",
-                    "direct_brand_news": f"Parse error: {str(exc)[:80]}",
-                    "announced_on": "", "duration": "", "unable_to_access": False}
+            data = {
+                "event_region": "", "event_name": "",
+                "direct_brand_news": f"Parse error: {str(exc)[:100]}",
+                "announced_on": "", "duration": "", "unable_to_access": False,
+            }
 
         base.update({
             "event_region":      data.get("event_region",      ""),
@@ -278,7 +292,52 @@ Return ONLY valid JSON — no markdown fences, no commentary:
     return results
 
 
-# ── HTML generation (Jinja2) ─────────────────────────────────────────────────
+# ── Summary markdown (matches PROMPT-CHAT.md format exactly) ─────────────────
+
+def build_summary_md(product_results, news_matches):
+    launches      = [r for r in product_results if r.get("event_name") and any(w in (r.get("event_name") or "").lower() for w in ["launch", "new", "release", "open"])]
+    bonuses       = [r for r in product_results if any(w in (r.get("event_name") or "").lower() for w in ["bonus", "discount", "sale", "promo", "reward", "offer"])]
+    discontinues  = [r for r in product_results if any(w in (r.get("event_name") or "").lower() for w in ["discontinu", "expir", "exit", "end", "remov", "clos"])]
+    unable        = [r for r in product_results if r.get("unable_to_access") or "unable to access" in (r.get("direct_brand_news") or "").lower()]
+    zero_findings = [r for r in product_results if not r.get("event_name") and not r.get("unable_to_access")]
+    all_indirect  = [(nm["source_name"], m) for nm in news_matches for m in nm.get("matches", [])]
+
+    def fmt_product(r):
+        line = f"- {r['product_name']}"
+        if r.get("event_name"):
+            line += f": {r['event_name']}"
+        if r.get("duration"):
+            line += f", {r['duration']}"
+        return line
+
+    lines = [f"# OffGamers Tracker — {today}\n"]
+
+    lines.append("## 🆕 New launches this week")
+    lines += [fmt_product(r) for r in launches] or ["(none this week)"]
+
+    lines.append("\n## 🎁 Active bonuses / discounts")
+    lines += [fmt_product(r) for r in bonuses] or ["(none this week)"]
+
+    lines.append("\n## ⚠️ Discontinuations or expiries")
+    lines += [fmt_product(r) for r in discontinues] or ["(none this week)"]
+
+    lines.append("\n## 📰 Top 3 indirect brand news items")
+    if all_indirect:
+        for i, (src, m) in enumerate(all_indirect[:3], 1):
+            lines.append(f"{i}. {m.get('indirect_brand_news', '')}")
+    else:
+        lines.append("(none this week)")
+
+    lines.append("\n## 🔇 Products with zero findings")
+    lines.append(", ".join(r["product_name"] for r in zero_findings) or "(none)")
+
+    lines.append("\n## ❌ Products where the page couldn't be accessed")
+    lines += [f"- {r['product_name']}: {r.get('direct_brand_news', '')}" for r in unable] or ["(none this week)"]
+
+    return "\n".join(lines)
+
+
+# ── HTML generation (Jinja2) ──────────────────────────────────────────────────
 
 def row_css_class(r):
     name = (r.get("event_name")        or "").lower()
@@ -327,10 +386,16 @@ thead th.sorted-desc::after{content:" ▼"}
 tbody tr:nth-child(even){background:#fafbfd}
 tbody tr:hover{background:#eef2ff}
 td{padding:9px 12px;border-bottom:1px solid #f0f0f0;vertical-align:top}
-.news-cell{max-width:320px;font-size:13px;line-height:1.5}
+.news-cell{max-width:340px;font-size:13px;line-height:1.5}
 .badge{background:#e8eaf6;color:#3949ab;border-radius:12px;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap}
 .muted{color:#bbb}
 .center{text-align:center;padding:20px}
+.summary-box{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:28px;padding:20px 28px}
+.summary-box h2{font-size:16px;color:#1a1a2e;margin-bottom:12px}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.summary-section h3{font-size:13px;font-weight:700;color:#555;margin-bottom:6px}
+.summary-section ul{list-style:none;font-size:13px;color:#444;line-height:1.8}
+.summary-section ul li::before{content:"• ";color:#888}
 tr.row-event       td:first-child{border-left:4px solid #4CAF50}
 tr.row-bonus       td:first-child{border-left:4px solid #FF9800}
 tr.row-discontinue td:first-child{border-left:4px solid #F44336}
@@ -341,7 +406,7 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
 <body>
 <header>
   <h1>OffGamers Weekly Product Events Tracker</h1>
-  <p>Run date: {{ today }} &nbsp;|&nbsp; Window: {{ window_start }} → {{ window_end }} &nbsp;|&nbsp; Powered by Firecrawl + Claude 3.5 Sonnet</p>
+  <p>Run date: {{ today }} &nbsp;|&nbsp; Window: {{ window_start }} → {{ window_end }} &nbsp;|&nbsp; Model: {{ model }}</p>
 </header>
 <div class="container">
 
@@ -353,6 +418,30 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
     <div class="card"><div class="val">{{ unable_count }}</div><div class="lbl">Unable to Access</div></div>
   </div>
 
+  <!-- Summary box -->
+  <div class="summary-box">
+    <h2>Weekly Summary</h2>
+    <div class="summary-grid">
+      <div class="summary-section">
+        <h3>🆕 New Launches</h3>
+        <ul>{% for r in launches %}<li>{{ r.product_name }}{% if r.event_name %}: {{ r.event_name }}{% endif %}</li>{% else %}<li style="color:#bbb">None this week</li>{% endfor %}</ul>
+      </div>
+      <div class="summary-section">
+        <h3>🎁 Bonuses / Discounts</h3>
+        <ul>{% for r in bonuses %}<li>{{ r.product_name }}{% if r.event_name %}: {{ r.event_name }}{% endif %}</li>{% else %}<li style="color:#bbb">None this week</li>{% endfor %}</ul>
+      </div>
+      <div class="summary-section">
+        <h3>⚠️ Discontinuations / Expiries</h3>
+        <ul>{% for r in discontinues %}<li>{{ r.product_name }}{% if r.event_name %}: {{ r.event_name }}{% endif %}</li>{% else %}<li style="color:#bbb">None this week</li>{% endfor %}</ul>
+      </div>
+      <div class="summary-section">
+        <h3>📰 Top Indirect News</h3>
+        <ul>{% for src, m in all_indirect[:3] %}<li>{{ m.indirect_brand_news }}</li>{% else %}<li style="color:#bbb">None this week</li>{% endfor %}</ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Events Table -->
   <div class="section">
     <div class="section-header">Product Events</div>
     <div class="legend">
@@ -376,7 +465,7 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
         <option value="row-no-event">No Event</option>
       </select>
     </div>
-    <table id="productTable">
+    <table>
       <thead><tr>
         <th onclick="sortTable('productTbody',0)">Product Name</th>
         <th onclick="sortTable('productTbody',1)">Category</th>
@@ -406,9 +495,10 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
     </table>
   </div>
 
+  <!-- Indirect Brand News Table -->
   <div class="section">
     <div class="section-header">Indirect Brand News (News Monitor sites)</div>
-    <table id="newsTable">
+    <table>
       <thead><tr>
         <th onclick="sortTable('newsTbody',0)">Product Matched</th>
         <th onclick="sortTable('newsTbody',1)">Source</th>
@@ -420,20 +510,18 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
       </tr></thead>
       <tbody id="newsTbody">
         {% set rowcount = namespace(value=0) %}
-        {% for nm in news_matches %}
-          {% for m in nm.matches %}
-            {% set rowcount.value = rowcount.value + 1 %}
-            <tr>
-              <td>{{ m.matched_product }}</td>
-              <td>{{ nm.source_name }}</td>
-              <td>{{ nm.region }}</td>
-              <td>{{ m.event_name or '—' }}</td>
-              <td class="news-cell">{{ m.indirect_brand_news }}</td>
-              <td>{{ m.announced_on or '—' }}</td>
-              <td>{{ m.duration or '—' }}</td>
-            </tr>
-          {% endfor %}
-        {% endfor %}
+        {% for nm in news_matches %}{% for m in nm.matches %}
+          {% set rowcount.value = rowcount.value + 1 %}
+          <tr>
+            <td>{{ m.matched_product }}</td>
+            <td>{{ nm.source_name }}</td>
+            <td>{{ nm.region }}</td>
+            <td>{{ m.event_name or '—' }}</td>
+            <td class="news-cell">{{ m.indirect_brand_news }}</td>
+            <td>{{ m.announced_on or '—' }}</td>
+            <td>{{ m.duration or '—' }}</td>
+          </tr>
+        {% endfor %}{% endfor %}
         {% if rowcount.value == 0 %}
           <tr><td colspan="7" class="muted center">No indirect brand news found this week.</td></tr>
         {% endif %}
@@ -444,46 +532,43 @@ tr.row-no-event    td:first-child{border-left:4px solid #e0e0e0}
 </div>
 <script>
 (function(){
-  const rows = document.querySelectorAll('#productTbody tr');
-  const cats = new Set(), regs = new Set();
-  rows.forEach(r => { cats.add(r.dataset.category); regs.add(r.dataset.region); });
-  const catSel = document.getElementById('catFilter');
-  const regSel = document.getElementById('regionFilter');
-  [...cats].filter(Boolean).sort().forEach(c => { const o=document.createElement('option'); o.value=c; o.textContent=c; catSel.appendChild(o); });
-  [...regs].filter(Boolean).sort().forEach(r => { const o=document.createElement('option'); o.value=r; o.textContent=r; regSel.appendChild(o); });
+  const rows=document.querySelectorAll('#productTbody tr');
+  const cats=new Set(),regs=new Set();
+  rows.forEach(r=>{cats.add(r.dataset.category);regs.add(r.dataset.region);});
+  const catSel=document.getElementById('catFilter');
+  const regSel=document.getElementById('regionFilter');
+  [...cats].filter(Boolean).sort().forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;catSel.appendChild(o);});
+  [...regs].filter(Boolean).sort().forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=r;regSel.appendChild(o);});
 })();
-function filterProducts() {
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  const cat = document.getElementById('catFilter').value;
-  const reg = document.getElementById('regionFilter').value;
-  const status = document.getElementById('statusFilter').value;
-  document.querySelectorAll('#productTbody tr').forEach(row => {
-    const name = row.cells[0].textContent.toLowerCase();
-    const rowCls = [...row.classList].find(c => c.startsWith('row-')) || '';
-    const show = (!search || name.includes(search))
-              && (!cat    || row.dataset.category === cat)
-              && (!reg    || row.dataset.region   === reg)
-              && (!status || rowCls === status);
-    row.style.display = show ? '' : 'none';
+function filterProducts(){
+  const search=document.getElementById('searchInput').value.toLowerCase();
+  const cat=document.getElementById('catFilter').value;
+  const reg=document.getElementById('regionFilter').value;
+  const status=document.getElementById('statusFilter').value;
+  document.querySelectorAll('#productTbody tr').forEach(row=>{
+    const name=row.cells[0].textContent.toLowerCase();
+    const rowCls=[...row.classList].find(c=>c.startsWith('row-'))||'';
+    const show=(!search||name.includes(search))&&(!cat||row.dataset.category===cat)&&(!reg||row.dataset.region===reg)&&(!status||rowCls===status);
+    row.style.display=show?'':'none';
   });
 }
-const sortDir = {};
-function sortTable(tbodyId, col) {
-  const key = tbodyId + col;
-  const asc = !sortDir[key];
-  sortDir[key] = asc;
-  const tbody = document.getElementById(tbodyId);
-  const rows = [...tbody.querySelectorAll('tr')];
-  rows.sort((a, b) => {
-    const ta = (a.cells[col]?.textContent || '').trim();
-    const tb = (b.cells[col]?.textContent || '').trim();
-    return asc ? ta.localeCompare(tb) : tb.localeCompare(ta);
+const sortDir={};
+function sortTable(tbodyId,col){
+  const key=tbodyId+col;
+  const asc=!sortDir[key];
+  sortDir[key]=asc;
+  const tbody=document.getElementById(tbodyId);
+  const rows=[...tbody.querySelectorAll('tr')];
+  rows.sort((a,b)=>{
+    const ta=(a.cells[col]?.textContent||'').trim();
+    const tb=(b.cells[col]?.textContent||'').trim();
+    return asc?ta.localeCompare(tb):tb.localeCompare(ta);
   });
-  rows.forEach(r => tbody.appendChild(r));
-  const tableEl = tbody.closest('table');
-  tableEl.querySelectorAll('th').forEach((th, i) => {
-    th.classList.remove('sorted-asc', 'sorted-desc');
-    if (i === col) th.classList.add(asc ? 'sorted-asc' : 'sorted-desc');
+  rows.forEach(r=>tbody.appendChild(r));
+  const tableEl=tbody.closest('table');
+  tableEl.querySelectorAll('th').forEach((th,i)=>{
+    th.classList.remove('sorted-asc','sorted-desc');
+    if(i===col)th.classList.add(asc?'sorted-asc':'sorted-desc');
   });
 }
 </script>
@@ -492,30 +577,40 @@ function sortTable(tbodyId, col) {
 
 
 def generate_html(product_results, news_matches):
-    # Annotate each product with its CSS class
     for r in product_results:
         r["css_class"] = row_css_class(r)
+
+    name = lambda r, keywords: any(w in (r.get("event_name") or "").lower() for w in keywords)
+    launches     = [r for r in product_results if name(r, ["launch","new","release","open"])]
+    bonuses      = [r for r in product_results if name(r, ["bonus","discount","sale","promo","reward","offer"])]
+    discontinues = [r for r in product_results if name(r, ["discontinu","expir","exit","end","remov","clos"])]
+    all_indirect = [(nm["source_name"], m) for nm in news_matches for m in nm.get("matches", [])]
 
     return HTML_TEMPLATE.render(
         today          = today,
         window_start   = window_start,
         window_end     = window_end,
+        model          = MODEL,
         product_results= product_results,
         news_matches   = news_matches,
+        launches       = launches,
+        bonuses        = bonuses,
+        discontinues   = discontinues,
+        all_indirect   = all_indirect,
         total_products = len(product_results),
         events_found   = sum(1 for r in product_results if r.get("event_name")),
         unable_count   = sum(1 for r in product_results if r.get("unable_to_access")),
-        no_events      = sum(1 for r in product_results
-                             if not r.get("event_name") and not r.get("unable_to_access")),
+        no_events      = sum(1 for r in product_results if not r.get("event_name") and not r.get("unable_to_access")),
         total_indirect = sum(len(nm.get("matches", [])) for nm in news_matches),
     )
 
 
-# ── Entry point ──────────────────────────────────────────────────────────────
+# ── Entry point ───────────────────────────────────────────────────────────────
 
 def main():
     print(f"OffGamers Weekly Tracker — run date: {today}")
-    print(f"Date window: {window_start} to {window_end}\n")
+    print(f"Date window: {window_start} to {window_end}")
+    print(f"Model: {MODEL}\n")
 
     df = pd.read_excel(TRACKER_FILE)
     print(f"Loaded {len(df)} rows from {TRACKER_FILE}\n")
@@ -528,16 +623,24 @@ def main():
 
     print("\nRendering index.html...")
     html = generate_html(product_results, news_matches)
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as fh:
+    with open(OUTPUT_HTML, "w", encoding="utf-8") as fh:
         fh.write(html)
 
+    print("Writing summary.md...")
+    md = build_summary_md(product_results, news_matches)
+    with open(OUTPUT_MD, "w", encoding="utf-8") as fh:
+        fh.write(md)
+
+    print(f"\n{'='*50}")
+    print(md)
+    print('='*50)
     events   = sum(1 for r in product_results if r.get("event_name"))
     unable   = sum(1 for r in product_results if r.get("unable_to_access"))
     indirect = sum(len(nm.get("matches", [])) for nm in news_matches)
-    print(f"\nDone! → {OUTPUT_FILE}")
-    print(f"  Products with events : {events}")
-    print(f"  Unable to access     : {unable}")
-    print(f"  Indirect news items  : {indirect}")
+    print(f"\nDone! → {OUTPUT_HTML} + {OUTPUT_MD}")
+    print(f"  Events found     : {events}")
+    print(f"  Unable to access : {unable}")
+    print(f"  Indirect news    : {indirect}")
 
 
 if __name__ == "__main__":
