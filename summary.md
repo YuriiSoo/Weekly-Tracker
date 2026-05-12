@@ -1,20 +1,71 @@
-# OffGamers Tracker — 2026-05-12
+# OffGamers Tracker - 2026-05-12
 
-## 🆕 New launches this week
+## New launches this week
 (none this week)
 
-## 🎁 Active bonuses / discounts
+## Active bonuses / discounts
 (none this week)
 
-## ⚠️ Discontinuations or expiries
+## Discontinuations or expiries
 (none this week)
 
-## 📰 Top 3 indirect brand news items
+## Top 3 indirect brand news items
 (none this week)
 
-## 🔇 Products with zero findings
-Nexon Game Card, MapleStory NX (PlayPark), GoCash Game Card, MyCard Points, 4Games, Steam Wallet Codes, PUBG UC, Amazon Gift Card, DaddySkins Gift Card, NCSoft NCoins, Nintendo eShop Card, Xbox Live Gift Card, LifeAfter (Mobile), BitCash Gift Card, HOTLINK, Afreeca TV Gift Card, Bleach Online, Free Fire Diamond Pins, CrossFire eCoin, Best Buy Gift Card, PUBG Mobile Top-Up, Spotify Gift Card, Eudemons Online Point Card, Jawaker Token (Global), Mobile Legends: Bang Bang (Mobile), NetDragon, Scoin, GameStop Gift Card, Zing Code, DoorDash Gift Card, Google Play Gift Card, GASH POINT, GASH POINT, Bigo Live, VTC Vcoin, Uber Gift Card, Stormshot Direct Top-Up, Garena Shell, Netflix Gift Card, WebMoney Gift Card, Battlenet Gift Card, DMM.com Gift Card (JP), Megaxus MI-CASH, ExitLag, CIB POINT, Booknlife Prepaid Card, FlipKart Gift Card, Noon Gift Card, Nexon Cash Card, eBay Gift Card, Football Master 2 (Mobile)
+## Products with zero findings
+(none)
 
-## ❌ Products where the page couldn't be accessed
+## Products where the page could not be accessed
+- Nexon Game Card: Unable to access
+- MapleStory NX (PlayPark): Unable to access
+- GoCash Game Card: Unable to access
+- MyCard Points: Unable to access
+- 4Games: Unable to access
+- Steam Wallet Codes: Unable to access
+- PUBG UC: Unable to access
+- Amazon Gift Card: Unable to access
+- DaddySkins Gift Card: Unable to access
+- NCSoft NCoins: Unable to access
+- Nintendo eShop Card: Unable to access
+- Xbox Live Gift Card: Unable to access
 - 京东E卡 (中服): No URL provided
-- Ovo Cash Gift Card: No URL provided
+- LifeAfter (Mobile): Unable to access
+- BitCash Gift Card: Unable to access
+- HOTLINK: Unable to access
+- Afreeca TV Gift Card: Unable to access
+- Ovo Cash Gift Card: Unable to access
+- Bleach Online: Unable to access
+- Free Fire Diamond Pins: Unable to access
+- CrossFire eCoin: Unable to access
+- Best Buy Gift Card: Unable to access
+- PUBG Mobile Top-Up: Unable to access
+- Spotify Gift Card: Unable to access
+- Eudemons Online Point Card: Unable to access
+- Jawaker Token (Global): Unable to access
+- Mobile Legends: Bang Bang (Mobile): Unable to access
+- NetDragon: Unable to access
+- Scoin: Unable to access
+- GameStop Gift Card: Unable to access
+- Zing Code: Unable to access
+- DoorDash Gift Card: Unable to access
+- Google Play Gift Card: Unable to access
+- GASH POINT: Unable to access
+- GASH POINT: Unable to access
+- Bigo Live: Unable to access
+- VTC Vcoin: Unable to access
+- Uber Gift Card: Unable to access
+- Stormshot Direct Top-Up: Unable to access
+- Garena Shell: Unable to access
+- Netflix Gift Card: Unable to access
+- WebMoney Gift Card: Unable to access
+- Battlenet Gift Card: Unable to access
+- DMM.com Gift Card (JP): Unable to access
+- Megaxus MI-CASH: Unable to access
+- ExitLag: Unable to access
+- CIB POINT: Unable to access
+- Booknlife Prepaid Card: Unable to access
+- FlipKart Gift Card: Unable to access
+- Noon Gift Card: Unable to access
+- Nexon Cash Card: Unable to access
+- eBay Gift Card: Unable to access
+- Football Master 2 (Mobile): Unable to access
