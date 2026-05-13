@@ -85,7 +85,7 @@ def get_urls_for_row(row):
 
 def scrape_url(url):
     try:
-        result = firecrawl_app.scrape_url(url, params={"formats": ["markdown"]})
+        result = firecrawl_app.scrape(url, formats=["markdown"])
         if isinstance(result, dict):
             text = result.get("markdown", "") or ""
             if result.get("error"):
